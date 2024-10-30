@@ -134,6 +134,13 @@ impl Node {
             BlobNode(blob) => blob.get_name()
         }
     }
+    
+    pub fn get_id(&self) -> String {
+        match self {
+            TreeNode(tree) => tree.get_id(),
+            BlobNode(blob) => blob.get_id()
+        }
+    }
 
     /// Find child of a `TreeNode`
     ///

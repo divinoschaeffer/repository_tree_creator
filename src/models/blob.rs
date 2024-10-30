@@ -1,10 +1,12 @@
 use std::fs::File;
 use std::io::{BufReader, Read};
-use std::path::{Path, PathBuf};
+use std::path::{Path};
+use dit_id_generator::features::generator::generate;
 use crate::error::RepTreeError;
+use dit_id_generator::traits::generator::Generator;
 
 #[derive(Clone, Default, Debug)]
-pub struct Blob {
+pub struct Blob{
     id: String,
     name: String,
     content: String
@@ -77,6 +79,16 @@ impl Blob {
         let mut contents = String::new();
         buf_reader.read_to_string(&mut contents).map_err(RepTreeError::IoError)?;
         self.content = contents;
+        self.generate_id();
         Ok(())
+    }
+}
+
+impl Generator for Blob {
+    fn generate_id(&mut self) -> String {
+        let content = self.content.clone();
+        let id = generate(content);
+        self.set_id(id.clone());
+        id
     }
 }

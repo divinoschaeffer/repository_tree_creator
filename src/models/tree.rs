@@ -1,3 +1,6 @@
+use std::any::Any;
+use dit_id_generator::features::generator::generate;
+use dit_id_generator::traits::generator::Generator;
 use crate::models::node::Node;
 
 #[derive(Clone, Debug, Default)]
@@ -130,5 +133,22 @@ impl Tree {
         }
         
         self.children.push(node);
+    }
+}
+
+impl Generator for Tree {
+    fn generate_id(&mut self) -> String {
+        let mut content = String::from("");
+        return if self.children.len() == 0 {
+            self.set_id(String::from(""));
+            String::from("")
+        } else {
+            for node in self.children.iter() {
+                content += &*node.get_id()
+            }
+            let id = generate(content);
+            self.set_id(id.clone());
+            id
+        }
     }
 }

@@ -5,5 +5,4 @@ edition = "2021"
 
 [dependencies]
 ctor = "0.2.8"
-
-[dev-dependencies]
+dit_id_generator = { path = "../dit_id_generator" }
