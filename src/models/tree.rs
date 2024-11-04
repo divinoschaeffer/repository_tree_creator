@@ -1,6 +1,6 @@
-use std::any::Any;
 use dit_id_generator::features::generator::generate;
 use dit_id_generator::traits::generator::Generator;
+use crate::error::RepTreeError;
 use crate::models::node::Node;
 
 #[derive(Clone, Debug, Default)]
@@ -140,10 +140,13 @@ impl Generator for Tree {
     fn generate_id(&mut self) -> String {
         let mut content = String::from("");
         return if self.children.len() == 0 {
-            self.set_id(String::from(""));
-            String::from("")
+            let content = self.get_name().clone();
+            let id = generate(content);
+            self.set_id(id.clone());
+            id
         } else {
-            for node in self.children.iter() {
+            for node in self.children.iter_mut() {
+                node.generate_id();
                 content += &*node.get_id()
             }
             let id = generate(content);

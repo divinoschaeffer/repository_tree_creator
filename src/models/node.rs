@@ -1,3 +1,4 @@
+use dit_id_generator::traits::generator::Generator;
 use crate::models::blob::Blob;
 use crate::models::node::Node::{BlobNode, TreeNode};
 use crate::models::tree::Tree;
@@ -178,6 +179,15 @@ impl Node {
         match self {
             BlobNode(blob) => Some(blob.get_content()),
             _ => None
+        }
+    }
+}
+
+impl Generator for Node {
+    fn generate_id(&mut self) -> String {
+        match self {
+            TreeNode(tree ) => tree.generate_id(),
+            BlobNode(blob) => blob.generate_id()
         }
     }
 }

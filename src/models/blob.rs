@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::{BufReader, Read};
-use std::path::{Path};
+use std::path::{Path, PathBuf};
 use dit_id_generator::features::generator::generate;
 use crate::error::RepTreeError;
 use dit_id_generator::traits::generator::Generator;
