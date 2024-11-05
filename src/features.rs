@@ -1,4 +1,2 @@
 pub mod create_repository_tree;
-mod hash_repository_tree;
-mod generate_tree_ids;
-mod transcript_repository_tree_to_file;
+pub mod transcript_repository_tree_to_file;
