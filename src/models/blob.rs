@@ -5,6 +5,7 @@ use dit_id_generator::features::generator::generate;
 use crate::error::RepTreeError;
 use dit_id_generator::traits::generator::Generator;
 
+pub const BLOB: &str = "BLOB";
 #[derive(Clone, Default, Debug)]
 pub struct Blob{
     id: String,
