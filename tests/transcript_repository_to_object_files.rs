@@ -26,7 +26,7 @@ fn should_transcript_repository_to_object_files() {
     let mut r1 = Tree::new("dir1".to_string(), vec![BlobNode(b1), TreeNode(r2)]);
     r1.set_id(String::from("1234567890"));
     
-    rtc::features::transcript_repository_tree_to_file::transcript_repository_to_object_files(&TreeNode(r1), &PathBuf::from("tempdir1")).unwrap();
+    rtc::features::transcript_repository_tree_to_object_files::transcript_repository_to_object_files(&TreeNode(r1), &PathBuf::from("tempdir1")).unwrap();
     let mut file = OpenOptions::new()
         .read(true)
         .open("tempdir1/12/34567890")

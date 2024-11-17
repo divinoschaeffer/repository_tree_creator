@@ -67,7 +67,7 @@ mod tests {
     use std::fs::{File, OpenOptions};
     use std::io::{BufReader, BufWriter, Read, Write};
     use std::path::PathBuf;
-    use crate::features::transcript_repository_tree_to_file::{create_details, create_file, transcript_blob, transcript_tree};
+    use crate::features::transcript_repository_tree_to_object_files::{create_details, create_file, transcript_blob, transcript_tree};
     use crate::models::blob::Blob;
     use crate::models::node::Node::BlobNode;
     use crate::models::tree::Tree;

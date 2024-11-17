@@ -16,8 +16,7 @@ use crate::models::tree::Tree;
 /// # Returns
 ///
 /// Result with root `node`, or `RepTreeError` if error
-pub fn create_repository_tree(paths: Vec<PathBuf>) -> Result<Node,RepTreeError> {
-    let tree: Tree = Tree::default();
+pub fn create_repository_tree(tree: Tree, paths: Vec<PathBuf>) -> Result<Node,RepTreeError> {
     let mut root = TreeNode(tree);
 
     for path in paths.iter() {

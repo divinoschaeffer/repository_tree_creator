@@ -3,6 +3,7 @@ use std::fs::File;
 use std::path::{Path, PathBuf};
 use repository_tree_creator as rtc;
 use repository_tree_creator::models::node::Node;
+use repository_tree_creator::models::tree::Tree;
 
 fn setup(){
     let dir_path = ".tmp/foo/feat";
@@ -27,7 +28,7 @@ fn should_create_repository_tree(){
         PathBuf::from(".tmp/foo/feat/hello.txt"),
         PathBuf::from(".tmp/foo/feat/world.txt")
     ];
-    let mut node = rtc::features::create_repository_tree::create_repository_tree(paths).unwrap();
+    let mut node = rtc::features::create_repository_tree::create_repository_tree(Tree::default(), paths).unwrap();
     
     teardown();
     
