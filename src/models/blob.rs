@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::{BufReader, Read};
-use std::path::{Path, PathBuf};
+use std::path::{Path};
 use dit_id_generator::features::generator::generate;
 use crate::error::RepTreeError;
 use dit_id_generator::traits::generator::Generator;
@@ -82,6 +82,10 @@ impl Blob {
         self.content = contents;
         self.generate_id();
         Ok(())
+    }
+    
+    pub fn set_content(&mut self, content: String) {
+        self.content = content;
     }
 }
 

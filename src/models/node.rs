@@ -65,6 +65,10 @@ impl Node {
             _ => false
         }
     }
+    
+    pub fn is_root(&self) -> bool {
+        return self.get_name() == "";
+    }
 
     pub fn is_blob(&self) -> bool {
         match self {

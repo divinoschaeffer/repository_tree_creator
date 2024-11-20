@@ -1,6 +1,5 @@
 use dit_id_generator::features::generator::generate;
 use dit_id_generator::traits::generator::Generator;
-use crate::error::RepTreeError;
 use crate::models::node::Node;
 
 #[derive(Clone, Debug, Default)]
@@ -133,6 +132,20 @@ impl Tree {
         }
         
         self.children.push(node);
+    }
+    
+    pub fn replace_node_among_children(&mut self, other: Node) {
+        if let Some(existing_node) = self.children
+            .iter_mut()
+            .find(|x| 
+                  x.get_name() == other.get_name()
+                  && Node::is_same_type(x, &other)) {
+            *existing_node = other;
+        }
+    }
+    
+    pub fn exist_node_same_name_and_type(&self, other: &Node) -> bool{
+        self.children.iter().any(|n| n.get_name() == other.get_name() && Node::is_tree(n))
     }
 }
 
