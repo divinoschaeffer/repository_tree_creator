@@ -28,7 +28,7 @@ pub fn get_repository_tree_from_object_files(root: &mut Tree, object_id: &String
         let content = match line {
             Ok(content) => content,
             Err(..) => {
-                return Err(RepTreeError::UnexpectedComportement("Error while reading a file".to_string()));
+                return Err(RepTreeError::UnexpectedComportment("Error while reading a file".to_string()));
             }
         };
         let id = &content[5..45];

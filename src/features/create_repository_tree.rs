@@ -60,7 +60,7 @@ fn add_node_to_repository_tree(node: &mut Node, paths: &mut Vec<&Path>) -> Resul
     let file_name = element_path.file_name()
         .and_then(|name| name.to_str())
         .ok_or_else(|| {
-            RepTreeError::UnexpectedComportement(format!("Failed to get file name: {:?}", element_path))
+            RepTreeError::UnexpectedComportment(format!("Failed to get file name: {:?}", element_path))
         })?;
 
     if element_path.is_dir() {

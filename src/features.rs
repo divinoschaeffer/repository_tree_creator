@@ -2,4 +2,4 @@ pub mod create_repository_tree;
 pub mod transcript_repository_tree_to_object_files;
 pub mod transcript_repository_to_files;
 pub mod get_repository_tree_from_object_files;
-mod merge_repository_trees;
+pub mod merge_repository_trees;

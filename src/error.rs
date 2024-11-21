@@ -4,14 +4,14 @@ use std::fmt::{Formatter};
 #[derive(Debug)]
 pub enum RepTreeError {
     IoError(std::io::Error),
-    UnexpectedComportement(String)
+    UnexpectedComportment(String)
 }
 
 impl fmt::Display for RepTreeError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             RepTreeError::IoError(e) => write!(f, "IO error: {}",e),
-            RepTreeError::UnexpectedComportement(message) => write!(f, "{}", message),
+            RepTreeError::UnexpectedComportment(message) => write!(f, "{}", message),
         }
     }
 }
