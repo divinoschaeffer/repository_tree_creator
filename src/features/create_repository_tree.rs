@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
 use std::fs::{self, File};
+use dit_id_generator::traits::generator::Generator;
 use crate::error::RepTreeError;
 use crate::models::blob::Blob;
 use crate::models::node::Node;
@@ -25,6 +26,8 @@ pub fn create_repository_tree(tree: Tree, paths: Vec<PathBuf>) -> Result<Node,Re
             add_node_to_repository_tree(&mut root, &mut directories_and_file)?;
         }
     }
+    
+    root.generate_id();
 
     Ok(root)
 }
