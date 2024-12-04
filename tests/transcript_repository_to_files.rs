@@ -1,4 +1,4 @@
-use std::fs::{create_dir_all, remove_dir, remove_dir_all};
+use std::fs::{create_dir_all, remove_dir_all};
 use std::path::PathBuf;
 use repository_tree_creator::features::transcript_repository_to_files::{Mode, transcript_repository_tree_to_files};
 use repository_tree_creator::models::blob::Blob;

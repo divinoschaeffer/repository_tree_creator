@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
 use std::fs::{self, File};
+use dit_id_generator::traits::generator::Generator;
 use crate::error::RepTreeError;
 use crate::models::blob::Blob;
 use crate::models::node::Node;
@@ -25,6 +26,8 @@ pub fn create_repository_tree(tree: Tree, paths: Vec<PathBuf>) -> Result<Node,Re
             add_node_to_repository_tree(&mut root, &mut directories_and_file)?;
         }
     }
+    
+    root.generate_id();
 
     Ok(root)
 }
@@ -68,12 +71,14 @@ fn add_node_to_repository_tree(node: &mut Node, paths: &mut Vec<&Path>) -> Resul
     } else if element_path.is_file() {
         _add_blob_node_to_repository_tree(node, element_path, file_name)?;
     }
+    
+    node.generate_id();
 
     Ok(())
 }
 
 fn _add_tree_node_to_repository_tree(node: &mut Node, paths: &mut Vec<&Path>, file_name: &str) -> Result<(), RepTreeError> {
-    let mut tree_node: Node = Node::create_tree_node(file_name.to_string(), vec![]);
+    let mut tree_node: Node = Node::create_tree_node(file_name.to_string(), vec![], node.get_path().join(file_name));
 
     if let Some(mut already_existing_node) = node.find_child(&tree_node) {
         paths.remove(0);
@@ -90,6 +95,7 @@ fn _add_tree_node_to_repository_tree(node: &mut Node, paths: &mut Vec<&Path>, fi
 fn _add_blob_node_to_repository_tree(node: &mut Node, element_path: &Path, file_name: &str) -> Result<(), RepTreeError> {
     let mut blob: Blob = Blob::new(file_name.to_string(), "".to_string());
     blob.set_content_from_file(element_path)?;
+    blob.set_path(node.get_path().join(file_name));
     node.add_node_to_tree_node(BlobNode(blob));
     Ok(())
 }
@@ -133,7 +139,7 @@ mod tests {
 
     #[test]
     fn should_add_tree_node_to_repository() {
-        let mut root_node: Node = Node::create_tree_node("".to_string(), vec![]);
+        let mut root_node: Node = Node::create_tree_node("".to_string(), vec![], PathBuf::new());
         let mut paths: Vec<&Path> = vec![
             &Path::new(".tmp"),
         ];
@@ -153,7 +159,7 @@ mod tests {
     fn should_add_blob_node_to_repository() {
         File::create("tmp1").unwrap();
 
-        let mut root_node: Node = Node::create_tree_node("".to_string(), vec![]);
+        let mut root_node: Node = Node::create_tree_node("".to_string(), vec![], PathBuf::new());
         let mut paths: Vec<&Path> = vec![
             &Path::new("tmp1"),
         ];
@@ -176,12 +182,12 @@ mod tests {
         let mut file = File::create("tmp2").unwrap();
         file.write_all(b"Hello, World").unwrap();
 
-        let mut root_node: Node = Node::create_tree_node("".to_string(), vec![]);
+        let mut root_node: Node = Node::create_tree_node("".to_string(), vec![], PathBuf::new());
         let mut paths: Vec<&Path> = vec![
             &Path::new("tmp2"),
         ];
 
-        let result = add_node_to_repository_tree(&mut root_node, &mut paths);
+        let _ = add_node_to_repository_tree(&mut root_node, &mut paths);
 
         file.write_all(b", Everybody").unwrap();
         let result = add_node_to_repository_tree(&mut root_node, &mut paths);

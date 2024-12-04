@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use dit_id_generator::features::generator::generate;
 use dit_id_generator::traits::generator::Generator;
 use crate::models::node::Node;
@@ -6,7 +7,8 @@ use crate::models::node::Node;
 pub struct Tree {
     id: String,
     name: String,
-    children: Vec<Node>
+    children: Vec<Node>,
+    path: PathBuf
 }
 
 impl Tree {
@@ -20,7 +22,8 @@ impl Tree {
         Tree {
             id: "".to_string(),
             name: "".to_string(),
-            children: vec![]
+            children: vec![],
+            path: PathBuf::new()
         }
     }
 
@@ -38,7 +41,8 @@ impl Tree {
         Tree {
             id: "".to_string(),
             name,
-            children
+            children,
+            path: PathBuf::new()
         }
     }
 
@@ -61,7 +65,23 @@ impl Tree {
     pub fn get_children(&self) -> Vec<Node> {
         self.children.clone()
     }
+    
+    pub fn get_mut_children(&mut self) -> &mut Vec<Node> {
+        &mut self.children
+    }
+    
+    pub fn set_children(&mut self, children: Vec<Node>) {
+        self.children = children;
+    }
+    
+    pub fn set_path(&mut self, path: PathBuf) {
+        self.path = path;
+    }
 
+    pub fn get_path(&self) -> PathBuf {
+        self.path.clone()
+    }
+    
     pub fn find_child(&mut self, node: &Node) -> Option<&mut Node> {
         self.children.iter_mut().find(|x| x.has_same_name(node) && x.is_tree())
     }

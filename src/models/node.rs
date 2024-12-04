@@ -1,3 +1,4 @@
+use std::path::{PathBuf};
 use dit_id_generator::traits::generator::Generator;
 use crate::models::blob::Blob;
 use crate::models::node::Node::{BlobNode, TreeNode};
@@ -87,8 +88,9 @@ impl Node {
     /// # Returns
     ///
     /// Return a Node of type TreeNode
-    pub fn create_tree_node(name: String, children: Vec<Node>) -> Node {
-        let tree: Tree = Tree::new(name, children);
+    pub fn create_tree_node(name: String, children: Vec<Node>, path: PathBuf) -> Node {
+        let mut tree: Tree = Tree::new(name, children);
+        tree.set_path(path);
         TreeNode(tree)
     }
 
@@ -102,8 +104,9 @@ impl Node {
     /// # Returns
     ///
     /// Return a Node of type BlobNode
-    pub fn create_blob_node(name: String, content: String) -> Node {
-        let blob: Blob = Blob::new(name,content);
+    pub fn create_blob_node(name: String, content: String, path: PathBuf) -> Node {
+        let mut blob: Blob = Blob::new(name,content);
+        blob.set_path(path);
         BlobNode(blob)
     }
 
@@ -130,6 +133,20 @@ impl Node {
         match self {
             TreeNode(tree) => Some(tree.get_children()),
             _ => None
+        }
+    }
+    
+    pub fn get_mut_children(&mut self) -> Option<&mut Vec<Node>> {
+        match self {
+            TreeNode(tree) => Some(tree.get_mut_children()),
+            _ => None
+        }
+    }
+    
+    pub fn set_children(&mut self, children: Vec<Node>) {
+        match self {
+            TreeNode(tree) => tree.set_children(children),
+            _ => ()
         }
     }
 
@@ -183,6 +200,13 @@ impl Node {
         match self {
             BlobNode(blob) => Some(blob.get_content()),
             _ => None
+        }
+    }
+    
+    pub fn get_path(&self) -> PathBuf {
+        match self {
+            TreeNode(tree) => tree.get_path(),
+            BlobNode(blob) => blob.get_path()
         }
     }
 }

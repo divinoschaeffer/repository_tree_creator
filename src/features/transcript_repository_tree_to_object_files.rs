@@ -1,7 +1,8 @@
 use std::fs::{File, OpenOptions};
-use std::io::Write;
 use std::io::BufWriter;
+use std::io::Write;
 use std::path::PathBuf;
+
 use crate::error::RepTreeError;
 use crate::models::blob::Blob;
 use crate::models::node::Node;
@@ -64,9 +65,10 @@ fn transcript_blob(blob: &Blob, writer: &mut BufWriter<File>) -> Result<(), RepT
 
 #[cfg(test)]
 mod tests {
-    use std::fs::{File, OpenOptions};
-    use std::io::{BufReader, BufWriter, Read, Write};
+    use std::fs::OpenOptions;
+    use std::io::{BufWriter, Read, Write};
     use std::path::PathBuf;
+
     use crate::features::transcript_repository_tree_to_object_files::{create_details, create_file, transcript_blob, transcript_tree};
     use crate::models::blob::Blob;
     use crate::models::node::Node::BlobNode;
