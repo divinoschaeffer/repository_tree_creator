@@ -65,7 +65,7 @@ dependencies = [
 [[package]]
 name = "dit_id_generator"
 version = "0.1.0"
-source = "git+https://github.com/divinoschaeffer/dit_id_generator.git#098942d38fb158f373a139ce4b7d31fcda90bf84"
+source = "git+https://github.com/divinoschaeffer/dit_id_generator.git?branch=master#2b516ec76f5b9d8d2bb2a6e32d3487e40f00fa77"
 dependencies = [
  "hex",
  "sha2",

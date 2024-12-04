@@ -3,3 +3,4 @@ pub mod transcript_repository_tree_to_object_files;
 pub mod transcript_repository_to_files;
 pub mod get_repository_tree_from_object_files;
 pub mod merge_repository_trees;
+pub mod remove_element_from_repository_tree;

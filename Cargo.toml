@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 ctor = "0.2.8"
 diff = "0.1.13"
-dit_id_generator = { git = "https://github.com/divinoschaeffer/dit_id_generator.git" }
+dit_id_generator = { git = "https://github.com/divinoschaeffer/dit_id_generator.git", branch = "master" }
 
 [lib]
 path = "src/lib.rs"
