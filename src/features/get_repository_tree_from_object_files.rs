@@ -39,6 +39,7 @@ pub fn get_repository_tree_from_object_files(root: &mut Tree, object_id: &String
         } else {
             let mut new_tree = Tree::new(String::from(name), Vec::new());
             new_tree.set_id(String::from(id));
+            new_tree.set_path(root.get_path().join(String::from(name)));
             get_repository_tree_from_object_files(&mut new_tree, &String::from(id), object_path)?;
             let node = TreeNode(new_tree);
             root.add_node(node);
@@ -54,8 +55,9 @@ fn get_blob_from_object_file(root: &mut Tree, file_name: String, id: String, obj
     let mut contents = String::new();
     buf_reader.read_to_string(&mut contents).map_err(RepTreeError::IoError)?;
     
-    let mut blob = Blob::new(file_name, contents);
+    let mut blob = Blob::new(file_name.clone(), contents);
     blob.set_id(id);
+    blob.set_path(root.get_path().join(file_name));
     let node = BlobNode(blob);
     
     root.add_node(node);

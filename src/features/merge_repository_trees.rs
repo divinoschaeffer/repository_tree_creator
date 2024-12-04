@@ -2,22 +2,44 @@ use crate::models::blob::Blob;
 use crate::models::node::Node;
 use crate::models::node::Node::{BlobNode, TreeNode};
 
-pub fn merge_repository_trees(n1: Node, n2: Node) -> Option<Node>{
+#[derive(PartialEq)]
+pub enum Mode {
+    Partial,
+    Complete
+}
+
+impl Mode {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Mode::Partial => "PARTIAL",
+            Mode::Complete => "COMPLETE",
+        }
+    }
+}
+
+pub fn merge_repository_trees(n1: Node, n2: Node, mode: &Mode) -> Option<Node>{
     if n1.is_root() && n1.get_id() == n2.get_id() {
         return None;
     }
     
     match (n1, n2) {
         (BlobNode(mut b1), BlobNode(b2)) => {
-            merge_blob(&mut b1, &b2);
-            Some(BlobNode(b1))
+            match mode {
+                Mode::Partial => {
+                    Some(BlobNode(b2))
+                },
+                Mode::Complete => {
+                    merge_blob(&mut b1, &b2);
+                    Some(BlobNode(b1))
+                }
+            }
         },
         (TreeNode(mut t1), TreeNode(t2)) => {
             for node1 in t1.get_children() {
                 let name_node1 = node1.get_name();
                 for node2 in t2.get_children() {
                     if name_node1 == node2.get_name() && Node::is_same_type(&node1, &node2) {
-                        if let Some(result) = merge_repository_trees(node1.clone(), node2) {
+                        if let Some(result) = merge_repository_trees(node1.clone(), node2, mode) {
                             t1.replace_node_among_children(result);
                         }
                     }
