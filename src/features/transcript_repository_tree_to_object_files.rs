@@ -37,7 +37,7 @@ fn create_file(path_buf: &PathBuf, filename: String) -> Result<Box<dyn Write>, R
     let path_file = path_buf.join(filename);
     let compressed_file = CompressedFile::new(path_file);
     
-    let writer = compressed_file.open_for_write(false).map_err(|_e| {
+    let writer = compressed_file.open_for_write().map_err(|_e| {
         RepTreeError::Encryptor("Error creating writer for compressed file".to_string())
     })?;
 
@@ -82,7 +82,7 @@ mod tests {
         {
             let mut writer = CompressedFile::create_file(PathBuf::from(file_path))
                 .unwrap()
-                .open_for_write(false)
+                .open_for_write()
                 .unwrap();
 
             let blob = Blob::new(String::from("HAHA"), String::from("Hello"));
@@ -109,7 +109,7 @@ mod tests {
 
         {
             let mut writer = CompressedFile::new(PathBuf::from(file_path))
-                .open_for_write(false)
+                .open_for_write()
                 .unwrap();
 
             let blob = Blob::new(String::from("HAHA"), String::from("Hello"));

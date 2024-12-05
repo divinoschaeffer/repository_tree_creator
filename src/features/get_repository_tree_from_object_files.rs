@@ -21,10 +21,10 @@ use crate::utils::open_object_file;
 ///   - `Ok(())` on success.  
 ///   - `Err(RepTreeError)` if an I/O error or unexpected behavior occurs.
 pub fn get_repository_tree_from_object_files(root: &mut Tree, object_id: &String, object_path: &PathBuf) -> Result<(), RepTreeError> {
-    let file = open_object_file(object_id, object_path).map_err(RepTreeError::IoError)?;
-    let reader = BufReader::new(file);
+    let reader = open_object_file(object_id, object_path).map_err(RepTreeError::IoError)?;
+    let lines = BufReader::new(reader).lines();
 
-    for line in reader.lines() {
+    for line in lines {
         let content = match line {
             Ok(content) => content,
             Err(..) => {
@@ -49,11 +49,10 @@ pub fn get_repository_tree_from_object_files(root: &mut Tree, object_id: &String
 }
 
 fn get_blob_from_object_file(root: &mut Tree, file_name: String, id: String, object_path: &PathBuf) -> Result<(), RepTreeError> {
-    let file = open_object_file(&String::from(id.clone()), object_path).map_err(RepTreeError::IoError)?;
+    let mut reader = open_object_file(&String::from(id.clone()), object_path).map_err(RepTreeError::IoError)?;
     
-    let mut buf_reader = BufReader::new(file);
     let mut contents = String::new();
-    buf_reader.read_to_string(&mut contents).map_err(RepTreeError::IoError)?;
+    reader.read_to_string(&mut contents).map_err(RepTreeError::IoError)?;
     
     let mut blob = Blob::new(file_name.clone(), contents);
     blob.set_id(id);
