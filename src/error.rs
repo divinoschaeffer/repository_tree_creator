@@ -1,10 +1,11 @@
 use std::fmt;
-use std::fmt::{Formatter};
+use std::fmt::Formatter;
 
 #[derive(Debug)]
 pub enum RepTreeError {
     IoError(std::io::Error),
-    UnexpectedComportment(String)
+    UnexpectedComportment(String),
+    Encryptor(String)
 }
 
 impl fmt::Display for RepTreeError {
@@ -12,6 +13,7 @@ impl fmt::Display for RepTreeError {
         match self {
             RepTreeError::IoError(e) => write!(f, "IO error: {}",e),
             RepTreeError::UnexpectedComportment(message) => write!(f, "{}", message),
+            RepTreeError::Encryptor(message) => write!(f, "{}", message),
         }
     }
 }
