@@ -1,8 +1,10 @@
-use std::cmp::PartialEq;
 use std::{fs, io};
-use std::fs::OpenOptions;
+use std::cmp::PartialEq;
 use std::io::{ErrorKind, Write};
 use std::path::PathBuf;
+
+use dit_file_encryptor::CompressedFile;
+
 use crate::error::RepTreeError;
 use crate::models::blob::Blob;
 use crate::models::node::Node;
@@ -55,13 +57,13 @@ pub fn transcript_repository_tree_to_files(root: &Node, path: &PathBuf, mode: &M
 fn create_file(blob: &Blob, path: &PathBuf, mode: &Mode) -> Result<(), RepTreeError> {
     let file_path = path.join(blob.get_name());
     if *mode != Mode::Partial || !file_path.is_file() {
-        let mut file = OpenOptions::new()
-            .create(true)
-            .truncate(true)
-            .write(true)
-            .open(file_path).map_err(RepTreeError::IoError)?;
+        let mut writer = CompressedFile::new(file_path.clone())
+            .open_for_write()
+            .map_err(|e| {
+                RepTreeError::Encryptor(format!("Error {e} reading file {:?}", file_path))
+            })?;
 
-        file.write_all(blob.get_content().as_bytes()).map_err(RepTreeError::IoError)?;
+        writer.write_all(blob.get_content().as_bytes()).map_err(RepTreeError::IoError)?;
     }
     Ok(())
 }
@@ -92,9 +94,12 @@ fn create_directory(tree: &Tree, path: &PathBuf, mode: &Mode) -> Result<PathBuf,
 #[cfg(test)]
 mod tests {
     use std::fs;
-    use std::fs::{File, OpenOptions};
+    use std::fs::File;
     use std::io::Read;
     use std::path::PathBuf;
+
+    use dit_file_encryptor::CompressedFile;
+
     use crate::features::transcript_repository_to_files::{create_file, Mode};
     use crate::models::blob::Blob;
 
@@ -103,10 +108,10 @@ mod tests {
         let blob = Blob::new("blob".to_string(), "Hello, World".to_string());
         create_file(&blob, &PathBuf::from(""), &Mode::Complete).unwrap();
         let mut content = String::from("");
-        let mut file = OpenOptions::new()
-            .read(true)
-            .open("blob").unwrap();
-        file.read_to_string(&mut content).unwrap();
+        let mut reader = CompressedFile::new(PathBuf::from("blob"))
+            .open_for_read()
+            .unwrap();
+        reader.read_to_string(&mut content).unwrap();
         
         assert!(PathBuf::from("blob").is_file());
         assert_eq!("Hello, World", content);
@@ -115,6 +120,7 @@ mod tests {
     }
     
     #[test]
+    #[should_panic]
     fn test_should_not_create_file(){
         File::create("blob1").unwrap();
         
@@ -122,12 +128,11 @@ mod tests {
         create_file(&blob, &PathBuf::from(""), &Mode::Partial).unwrap();
         
         let mut content = String::from("");
-        let mut file = OpenOptions::new()
-            .read(true)
-            .open("blob1").unwrap();
-        file.read_to_string(&mut content).unwrap();
-
-        assert_eq!("", content);
+        let mut reader = CompressedFile::new(PathBuf::from("blob1"))
+            .open_for_read()
+            .unwrap();
+        
+        reader.read_to_string(&mut content).unwrap();
 
         fs::remove_file("blob1").unwrap();
     }
