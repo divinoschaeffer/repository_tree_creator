@@ -2,6 +2,7 @@ use std::fs;
 use std::fs::OpenOptions;
 use std::io::Read;
 use std::path::PathBuf;
+use dit_file_encryptor::CompressedFile;
 use repository_tree_creator::models::blob::Blob;
 use repository_tree_creator::models::node::Node::{BlobNode, TreeNode};
 use repository_tree_creator::models::tree::Tree;
@@ -27,13 +28,12 @@ fn should_transcript_repository_to_object_files() {
     r1.set_id(String::from("1234567890"));
     
     rtc::features::transcript_repository_tree_to_object_files::transcript_repository_to_object_files(&TreeNode(r1), &PathBuf::from("tempdir1")).unwrap();
-    let mut file = OpenOptions::new()
-        .read(true)
-        .open("tempdir1/12/34567890")
+    let mut reader = CompressedFile::new(PathBuf::from("tempdir1/12/34567890"))
+        .open_for_read()
         .unwrap();
     
-    let mut content = String::from(""); 
-    file.read_to_string(&mut content).unwrap();
+    let mut content = String::from("");
+    reader.read_to_string(&mut content).unwrap();
     
     assert!(PathBuf::from("tempdir1/12/34567890").is_file());
     assert!(PathBuf::from("tempdir1/12/34567891").is_file());

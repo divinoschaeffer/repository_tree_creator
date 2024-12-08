@@ -1,7 +1,8 @@
-use std::fs::{File, OpenOptions};
 use std::io::Write;
-use std::io::BufWriter;
 use std::path::PathBuf;
+
+use dit_file_encryptor::CompressedFile;
+
 use crate::error::RepTreeError;
 use crate::models::blob::Blob;
 use crate::models::node::Node;
@@ -9,8 +10,7 @@ use crate::models::tree::Tree;
 
 pub fn transcript_repository_to_object_files(root: &Node, path: &PathBuf) -> Result<(), RepTreeError>{
     let (filepath, filename) = create_details(root, path.clone());
-    let file: File = create_file(&filepath, filename)?;
-    let mut writer  = BufWriter::new(file);
+    let mut writer = create_file(&filepath, filename)?;
     match root {
         Node::BlobNode( blob) => {
             transcript_blob(blob, &mut writer)?;
@@ -33,17 +33,18 @@ fn create_details(node: &Node, path_buf: PathBuf) -> (PathBuf, String){
     (path, filename)
 }
 
-fn create_file(path_buf: &PathBuf, filename: String) -> Result<File, RepTreeError> {
-    let file = OpenOptions::new()
-        .create(true)
-        .write(true)
-        .read(true)
-        .open(path_buf.join(filename))
-        .map_err(RepTreeError::IoError)?;
-    Ok(file)
+fn create_file(path_buf: &PathBuf, filename: String) -> Result<Box<dyn Write>, RepTreeError> {
+    let path_file = path_buf.join(filename);
+    let compressed_file = CompressedFile::new(path_file);
+    
+    let writer = compressed_file.open_for_write().map_err(|_e| {
+        RepTreeError::Encryptor("Error creating writer for compressed file".to_string())
+    })?;
+
+    Ok(writer)
 }
 
-fn transcript_tree(tree: &Tree, writer: &mut BufWriter<File>) -> Result<(), RepTreeError> {
+fn transcript_tree(tree: &Tree, writer: &mut Box<dyn Write>) -> Result<(), RepTreeError> {
     for node in tree.get_children().iter() {
         match node {
             Node::TreeNode(tree)  => {
@@ -57,16 +58,18 @@ fn transcript_tree(tree: &Tree, writer: &mut BufWriter<File>) -> Result<(), RepT
     Ok(())
 }
 
-fn transcript_blob(blob: &Blob, writer: &mut BufWriter<File>) -> Result<(), RepTreeError> {
+fn transcript_blob(blob: &Blob, writer: &mut Box<dyn Write>) -> Result<(), RepTreeError> {
     write!(writer, "{}", blob.get_content()).map_err(RepTreeError::IoError)?;
     Ok(())
 }
 
 #[cfg(test)]
 mod tests {
-    use std::fs::{File, OpenOptions};
-    use std::io::{BufReader, BufWriter, Read, Write};
+    use std::io::{Read, Write};
     use std::path::PathBuf;
+
+    use dit_file_encryptor::CompressedFile;
+
     use crate::features::transcript_repository_tree_to_object_files::{create_details, create_file, transcript_blob, transcript_tree};
     use crate::models::blob::Blob;
     use crate::models::node::Node::BlobNode;
@@ -76,23 +79,23 @@ mod tests {
     fn test_should_transcript_blob() {
         let file_path = "tmp3";
 
-        let file = OpenOptions::new()
-            .create(true)
-            .write(true)
-            .open(file_path)
-            .expect("Failed to create file for writing");
-        let mut writer = BufWriter::new(file);
-        let blob = Blob::new(String::from("HAHA"), String::from("Hello"));
-        transcript_blob(&blob, &mut writer).expect("Failed to transcript blob");
-        
-        writer.flush().expect("Failed to flush");
+        {
+            let mut writer = CompressedFile::create_file(PathBuf::from(file_path))
+                .unwrap()
+                .open_for_write()
+                .unwrap();
 
-        let mut file = OpenOptions::new()
-            .read(true)
-            .open(file_path)
-            .expect("Failed to open file for reading");
+            let blob = Blob::new(String::from("HAHA"), String::from("Hello"));
+            transcript_blob(&blob, &mut writer).expect("Failed to transcript blob");
+
+            writer.flush().expect("Failed to flush");
+        }
+        
+        let mut reader = CompressedFile::new(PathBuf::from(file_path))
+            .open_for_read()
+            .unwrap();
         let mut content = String::new();
-        file.read_to_string(&mut content).expect("Failed to read file content");
+        reader.read_to_string(&mut content).expect("Failed to read file content");
 
         assert!(PathBuf::from(file_path).is_file(), "File should exist");
         assert_eq!("Hello", content, "Content should match");
@@ -104,24 +107,23 @@ mod tests {
     fn test_should_transcript_tree(){
         let file_path = "tmp4";
 
-        let file = OpenOptions::new()
-            .create(true)
-            .write(true)
-            .open(file_path)
-            .expect("Failed to create file for writing");
-        let mut writer = BufWriter::new(file);
-        let blob = Blob::new(String::from("HAHA"), String::from("Hello"));
-        let tree = Tree::new("tree".to_string(), vec![BlobNode(blob)]);
-        transcript_tree(&tree, &mut writer).expect("Failed to transcript");
+        {
+            let mut writer = CompressedFile::new(PathBuf::from(file_path))
+                .open_for_write()
+                .unwrap();
 
-        writer.flush().expect("Failed to flush");
+            let blob = Blob::new(String::from("HAHA"), String::from("Hello"));
+            let tree = Tree::new("tree".to_string(), vec![BlobNode(blob)]);
+            transcript_tree(&tree, &mut writer).expect("Failed to transcript");
 
-        let mut file = OpenOptions::new()
-            .read(true)
-            .open(file_path)
-            .expect("Failed to open file for reading");
+            writer.flush().expect("Failed to flush");
+        }
+
+        let mut reader = CompressedFile::new(PathBuf::from(file_path))
+            .open_for_read()
+            .unwrap();
         let mut content = String::new();
-        file.read_to_string(&mut content).expect("Failed to read file content");
+        reader.read_to_string(&mut content).expect("Failed to read file content");
 
         assert!(PathBuf::from(file_path).is_file(), "File should exist");
         assert_eq!("BLOB  HAHA\n", content);
@@ -148,3 +150,4 @@ mod tests {
         
     }
 }
+

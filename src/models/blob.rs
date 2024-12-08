@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::{BufReader, Read};
-use std::path::{Path};
+use std::path::{Path, PathBuf};
 use dit_id_generator::features::generator::generate;
 use crate::error::RepTreeError;
 use dit_id_generator::traits::generator::Generator;
@@ -10,7 +10,8 @@ pub const BLOB: &str = "BLOB";
 pub struct Blob{
     id: String,
     name: String,
-    content: String
+    content: String,
+    path: PathBuf
 }
 
 impl Blob {
@@ -19,7 +20,8 @@ impl Blob {
         Blob {
             id: "".to_string(),
             name: "".to_string(),
-            content: "".to_string()
+            content: "".to_string(),
+            path: PathBuf::new()
         }
     }
     
@@ -27,7 +29,8 @@ impl Blob {
         Blob {
             id: "".to_string(),
             name,
-            content
+            content,
+            path: PathBuf::new()
         }
     }
 
@@ -49,6 +52,14 @@ impl Blob {
     
     pub fn get_content(&self) -> String {
         self.content.to_string()
+    }
+    
+    pub fn set_path(&mut self, path: PathBuf) {
+        self.path = path;
+    }
+    
+    pub fn get_path(&self) -> PathBuf {
+        self.path.clone()
     }
 
     /// Check if two `Blob` instances has same name
